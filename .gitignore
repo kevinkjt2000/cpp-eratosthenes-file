@@ -1,5 +1,6 @@
 my-primes
 main
 main.exe
+catch.hpp
 *.d
 *.o
