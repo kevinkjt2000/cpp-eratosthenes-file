@@ -17,6 +17,10 @@ namespace primes_file {
 		std::streamsize fsize = file.gcount();
 		return fsize;
 	}
+
+	std::fstream get_eof_read_write_handle() {
+		return std::fstream(primes_file, ios::out | ios::in | ios::binary | ios::ate);
+	}
 }
 
 bool is_prime(uint64_t x) {
@@ -25,7 +29,7 @@ bool is_prime(uint64_t x) {
 
 	if(location_of_prime > fsize) {
 		//need to gen some more primes because we don't have it yet
-		std::fstream file(primes_file::primes_file, std::ios::out | std::ios::in | std::ios::binary | std::ios::ate);
+		std::fstream file = primes_file::get_eof_read_write_handle();
 		char assume_prime = 0xF;
 		for(std::streamsize num_bytes_to_add = location_of_prime - fsize; num_bytes_to_add > 0; --num_bytes_to_add) {
 			file.write(&assume_prime, 1);
