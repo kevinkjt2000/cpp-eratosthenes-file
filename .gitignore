@@ -1,2 +1,5 @@
-a.out
 my-primes
+main
+main.exe
+*.d
+*.o
