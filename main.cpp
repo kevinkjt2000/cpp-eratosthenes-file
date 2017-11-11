@@ -37,17 +37,35 @@ bool is_prime(uint64_t x) {
 	return x == 2;
 }
 
+TEST_CASE( "these numbers are prime", "[is_prime]" ) {
+	REQUIRE( is_prime(2) );
+	//REQUIRE( is_prime(3) );
+}
+
+TEST_CASE( "file size does not grow when a previous number is queried", "is_prime" ) {
+	primes_file::erase_contents();
+
+	is_prime(42);
+
+	std::streampos fsize_start = primes_file::get_size();
+
+	is_prime(42);
+
+	std::streampos fsize_end = primes_file::get_size();
+	REQUIRE( fsize_end == fsize_start );
+}
+
 TEST_CASE( "file size grows when a number larger than the sieve is queried", "is_prime" ) {
 	primes_file::erase_contents();
 	std::streampos fsize_start = primes_file::get_size();
-	
+
 	is_prime(2);
 
 	std::streampos fsize_end = primes_file::get_size();
 	REQUIRE( fsize_end > fsize_start );
-}
 
-TEST_CASE( "these numbers are prime", "[is_prime]" ) {
-	REQUIRE( is_prime(2) );
-	//REQUIRE( is_prime(3) );
+	is_prime(42);
+
+	std::streampos fsize_final = primes_file::get_size();
+	REQUIRE( fsize_final > fsize_end );
 }
