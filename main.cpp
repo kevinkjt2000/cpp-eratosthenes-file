@@ -21,6 +21,10 @@ namespace primes_file {
 	std::fstream get_eof_read_write_handle() {
 		return std::fstream(primes_file, ios::out | ios::in | ios::binary | ios::ate);
 	}
+
+	std::fstream get_read_handle() {
+		return std::fstream(primes_file, ios::in | ios::binary);
+	}
 }
 
 bool is_prime(uint64_t x) {
@@ -37,13 +41,18 @@ bool is_prime(uint64_t x) {
 	}
 
 	//the prime number is less than the file size so we should be able to seek to it's bit
+	std::fstream file = primes_file::get_read_handle();
+	file.seekg(location_of_prime - 1, std::ios::beg);
+	char byte = file.get();
+	bool primality = byte & (1 << (x % 8));
 
-	return x == 2;
+	return primality;
 }
 
 TEST_CASE( "these numbers are prime", "[is_prime]" ) {
+	primes_file::erase_contents();
 	REQUIRE( is_prime(2) );
-	//REQUIRE( is_prime(3) );
+	REQUIRE( is_prime(3) );
 }
 
 TEST_CASE( "file size does not grow when a previous number is queried", "is_prime" ) {
