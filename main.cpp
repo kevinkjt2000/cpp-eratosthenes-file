@@ -35,9 +35,9 @@ bool is_prime(uint64_t x) {
 		//need to gen some more primes because we don't know if x is prime yet
 		std::fstream file = primes_file::get_eof_read_write_handle();
 		if(fsize == 0) {
-				uint8_t byte = 0b10101100; // 6, 4, 1, and 0 are not prime
-				file.write((char*)&byte, 1);
-				fsize++;
+			const uint8_t byte = 0b10101100; // 6, 4, 1, and 0 are not prime
+			file.write((char*)&byte, 1);
+			fsize++;
 		}
 		for(auto num_bytes_to_add = location_of_prime - fsize; num_bytes_to_add > 0; --num_bytes_to_add) {
 			const uint8_t assume_prime = 0xFF;
