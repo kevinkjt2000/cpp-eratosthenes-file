@@ -32,21 +32,33 @@ bool is_prime(uint64_t x) {
 	std::streamsize location_of_prime = (x / 8) + 1;
 
 	if(location_of_prime > fsize) {
-		//need to gen some more primes because we don't have it yet
+		//need to gen some more primes because we don't know if x is prime yet
 		std::fstream file = primes_file::get_eof_read_write_handle();
-		char assume_prime = 0xF;
-		for(std::streamsize num_bytes_to_add = location_of_prime - fsize; num_bytes_to_add > 0; --num_bytes_to_add) {
-			file.write(&assume_prime, 1);
+		if(fsize == 0) {
+				uint8_t byte = 0b10101100; // 6, 4, 1, and 0 are not prime
+				file.write((char*)&byte, 1);
+				fsize++;
+		}
+		for(auto num_bytes_to_add = location_of_prime - fsize; num_bytes_to_add > 0; --num_bytes_to_add) {
+			const uint8_t assume_prime = 0xFF;
+			file.write((char*)&assume_prime, 1);
 		}
 	}
 
 	//the prime number is less than the file size so we should be able to seek to it's bit
 	std::fstream file = primes_file::get_read_handle();
 	file.seekg(location_of_prime - 1, std::ios::beg);
-	char byte = file.get();
+	uint8_t byte = file.get();
 	bool primality = byte & (1 << (x % 8));
 
 	return primality;
+}
+
+TEST_CASE( "these numbers are not prime", "[is_prime]" ) {
+	primes_file::erase_contents();
+	REQUIRE_FALSE( is_prime(0) );
+	REQUIRE_FALSE( is_prime(1) );
+	REQUIRE_FALSE( is_prime(4) );
 }
 
 TEST_CASE( "these numbers are prime", "[is_prime]" ) {
@@ -55,9 +67,7 @@ TEST_CASE( "these numbers are prime", "[is_prime]" ) {
 	REQUIRE( is_prime(3) );
 }
 
-TEST_CASE( "file size does not grow when a previous number is queried", "is_prime" ) {
-	primes_file::erase_contents();
-
+TEST_CASE( "file size does not grow when a previous number is queried", "[is_prime]" ) {
 	is_prime(42);
 
 	std::streampos fsize_start = primes_file::get_size();
@@ -68,7 +78,7 @@ TEST_CASE( "file size does not grow when a previous number is queried", "is_prim
 	REQUIRE( fsize_end == fsize_start );
 }
 
-TEST_CASE( "file size grows when a number larger than the sieve is queried", "is_prime" ) {
+TEST_CASE( "file size grows when a number larger than the sieve is queried", "[is_prime]" ) {
 	primes_file::erase_contents();
 	std::streampos fsize_start = primes_file::get_size();
 
